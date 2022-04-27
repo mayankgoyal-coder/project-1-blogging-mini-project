@@ -12,4 +12,7 @@ const blogController = require ("../controllers/blogController")
 //router.get("/getBlogs",blogController.getBlogs)
 
 //router.delete("/blogs/:blogId",blogController.blogGetData)
+
+
+router.put("/updateBlog/:blogId",blogController.updateBlog)
 module.exports=router
