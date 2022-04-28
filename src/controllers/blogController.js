@@ -21,40 +21,54 @@ const createBlog = async function (req, res) {
   }
 };
 module.exports.createBlog = createBlog;
+ 
 
-// const getBlogs = async function (req, res) {
-//     try {
-//       const data = await blogModel.find({
-//         isDeleted: false,
-//         isPublished: false,
-//       });
-//       if (!data == data) return res.send({ status: false });
-//       else {
-//         res.send({ status: true, msg: data });
-//       }
-//     } catch (err) {
-//       res.send({ status: false, err: err.message });
-//     }
-//   };
+const getBlogs = async function (req, res){
 
-const getBlogs = async function (req, res) {
-  try{
-    
-    data = req.query
-    
-    if(Object.keys(data) == 0){return res.status(404).send({status : false, msg: "Fill details"})}
-
-    const blogs = await blogModel.find({$and: [data, {deleted: false}, {published: true}]})
-
-    if (blogs.length == 0){return res.status(404).send({status: false, msg : "no blogs"})}
-
-    return res.status(200).send({status: true, data: blogs})
-
-  } catch(err) {
-
-    res.send({status: false, err: err.message})
-    
+  try {
+    data = req.query;
+    const blogs = await blogModel.find({
+      $and: [data, { Deleted: false }, { Published: true }],
+    });
+    if (blogs.length == 0) {
+      return res.status(404).send({ status: false, msg: "no blogs" });
+    }
+    return res.status(200).send({ status: true, data: blogs });
+  } catch (err) {
+    res.send({ status: false, err: err.message });
   }
-}
+};
 
-  module.exports.getBlogs = getBlogs;
+
+module.exports.getBlogs = getBlogs;
+
+const updateBlog = async function (req, res) {
+  try {
+    let blogId = req.params.blogId;
+    let Details = await blogModel.find({ _id: blogId, isDeleted: false });
+    if (!Details.length)
+      return res.status(400).send({ status: false, msg: "Data is incorrect" });
+    // res.send({data:Details})
+
+    let { title, body, tags, subcategory } = req.body;
+    let newBlog = await blogModel
+      .findOneAndUpdate(
+        { Details },
+        {
+          $push: { subcategory: subcategory, tags: tags },
+          title: title,
+          body: body,
+          Published: true,
+          publishedAt: Date.now(),
+        },
+        { new: true }
+      )
+      .populate("authorId");
+    res.status(200).send({ status: true, data: newBlog });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send({ error: err.message });
+  }
+};
+
+module.exports.updateBlog = updateBlog;
