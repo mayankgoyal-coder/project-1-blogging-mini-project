@@ -32,7 +32,7 @@ Repository for backend cohort - Uranium
 ### GET /blogs
 - Returns all blogs in the collection that aren't deleted and are published
 - Return the HTTP status 200 if any documents are found. The response structure should be like [this](#successful-response-structure) 
-- If no documents are found then return an HTTP status 404 with a response like [this](#error-response-structure) 
+- If no documents are found then return an HTTP status 404 with a response like [this](#error-response-structure)   
 - Filter blogs list by applying filters. Query param can have any combination of below filters.
   - By author Id
   - By category

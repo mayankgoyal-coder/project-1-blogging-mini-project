@@ -24,9 +24,9 @@ const createBlog = async function (req, res) {
 };
 const getBlogs = async function (req, res) {
   try {
-    data = req.query;
+    let data = req.query;
     const blogs = await blogModel.find({
-      $and: [data, { Deleted: false }, { Published: true }],
+      $and: [data, { isDeleted: false }, { Published: true }],
     });
     if (blogs.length == 0) {
       return res.status(404).send({ status: false, msg: "no blogs" });
