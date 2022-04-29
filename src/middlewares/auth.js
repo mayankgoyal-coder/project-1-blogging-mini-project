@@ -32,7 +32,7 @@ const authorise = async function(req, res, next){
         let authorId = req.query.authorId
         let author_Id = decodeToken.author_Id
         let blogId = req.params.blogId;
-
+        // req.body.auId = decodeToken.author_Id
         console.log(blogId)
 
         let blog_Id = await blogModel.findOne({_id : blogId})

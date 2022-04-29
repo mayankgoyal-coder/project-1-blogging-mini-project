@@ -110,32 +110,22 @@ const deleteQuery = async function (req, res) {
     let decode = jwt.verify(token, "project-one");
 
     let anyData = req.query;
-    let obj = await blogModel.find(anyData);
+    let obj = await blogModel.find({$and: [anyData, {authorId: decode.author_Id}]});
 
-    console.log(obj);
 
-    let output = [];
-    for (let i = 0; i < obj.length; i++) {
-      if (obj[i].authorId == decode.author_Id) {
-        output.push(obj[i]);
-      }
-    }
-
-    console.log(output);
-
-    if (!output.length)
+    if (!obj.length)
       return res.status(400).send({ status: false, msg: "BAD REQ" });
+    let delData= []
 
-    for (let j = 0; j < output.length; j++) {
-      let delData = await blogModel.updateMany(
-        { authorId: output[j].authorId },
+    for (let j = 0; j < obj.length; j++) {
+      delData = await blogModel.findOneAndUpdate(
+        { _id: obj[j]._id },
         { isDeleted: true, deletedAt: Date.now() },
         { new: true }
       );
 
-      output = delData;
     }
-    res.status(200).send({ status: true, data: output });
+    res.status(200).send({ status: true, data: "Documents successfully deleted" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ error: err.message });
