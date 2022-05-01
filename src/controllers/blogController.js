@@ -1,6 +1,7 @@
 const blogModel = require("../models/blogModel");
 const authorModel = require("../models/authorModel");
-const moment = require("moment");
+const moment = require("moment"); 
+const jwt = require("jsonwebtoken")
 
 const createBlog = async function (req, res) {
   try {
@@ -25,8 +26,8 @@ const createBlog = async function (req, res) {
 const getBlogs = async function (req, res) {
   try {
     let data = req.query;
-    const blogs = await blogModel.find({
-      $and: [data, { isDeleted: false }, { Published: true }],
+    const blogs = await blogModel.find(
+      {$and: [data, { isDeleted: false }, { Published: true }],
     });
     if (blogs.length == 0) {
       return res.status(404).send({ status: false, msg: "no blogs" });
@@ -88,17 +89,36 @@ const deleteBlog = async function (req, res) {
 
 const deleteQuery = async function (req, res) {
   try {
+    let token = req.headers["x-api-key"];
+    let decode = jwt.verify(token, "project-one");
+
     let anyData = req.query;
     let obj = await blogModel.find(anyData);
-    if (!obj.length)
-      return res.status(400).send({ status: false, msg: "BAD REQ" });
-    let delData = await blogModel.updateMany(
-      { obj },
-      { isDeleted: true, deletedAt: Date.now() },
-      { new: true }
-    );
 
-    res.status(200).send({ status: true, data: delData });
+    console.log(obj);
+
+    let output = [];
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i].authorId == decode.author_Id) {
+        output.push(obj[i]);
+      }
+    }
+
+    console.log(output);
+
+    if (!output.length)
+      return res.status(400).send({ status: false, msg: "BAD REQ" });
+
+    for (let j = 0; j < output.length; j++) {
+      let delData = await blogModel.updateMany(
+        { authorId: output[j].authorId },
+        { isDeleted: true, deletedAt: Date.now() },
+        { new: true }
+      );
+
+      output = delData;
+    }
+    res.status(200).send({ status: true, data: output });    
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ error: err.message });
