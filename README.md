@@ -13,7 +13,14 @@ Repository for backend cohort - Uranium
 ```
 - Blogs Model
 ```
-{ title: {mandatory}, body: {mandatory}, authorId: {mandatory, refs to author model}, tags: {array of string}, category: {string, mandatory, examples: [technology, entertainment, life style, food, fashion]}, subcategory: {array of string, examples[technology-[web development, mobile development, AI, ML etc]] }, createdAt, updatedAt, deletedAt: {when the document is deleted}, isDeleted: {boolean, default: false}, publishedAt: {when the blog is published}, isPublished: {boolean, default: false}}
+{ title: {mandatory}, 
+  body: {mandatory},  
+  authorId: {mandatory, refs to author model},  
+  tags: {array of string}, 
+  category: {string, mandatory, examples: [technology, entertainment, life style, food, fashion]}, 
+  subcategory: {array of string, examples[technology-[web development, mobile development, AI, ML etc]] }, 
+  createdAt, 
+  updatedAt, deletedAt: {when the document is deleted}, isDeleted: {boolean, default: false}, publishedAt: {when the blog is published}, isPublished: {boolean, default: false}}
 ```
 
 ### Author APIs /authors
@@ -41,11 +48,11 @@ Repository for backend cohort - Uranium
 example of a query url: blogs?filtername=filtervalue&f2=fv2
 
 ### PUT /blogs/:blogId
-- Updates a blog by changing the its title, body, adding tags, adding a subcategory. (Assuming tag and subcategory received in body is need to be added)
-- Updates a blog by changing its publish status i.e. adds publishedAt date and set published to true
-- Check if the blogId exists (must have isDeleted false). If it doesn't, return an HTTP status 404 with a response body like [this](#error-response-structure)
-- Return an HTTP status 200 if updated successfully with a body like [this](#successful-response-structure) 
-- Also make sure in the response you return the updated blog document. 
+- Updates a blog by changing the its title, body, adding tags, adding a subcategory. (Assuming tag and subcategory received in body is need to be added)  [Done]
+- Updates a blog by changing its publish status i.e. adds publishedAt date and set published to true  [Done]
+- Check if the blogId exists (must have isDeleted false). If it doesn't, return an HTTP status 404 with a response body like [this](#error-response-structure) [Done]
+- Return an HTTP status 200 if updated successfully with a body like [this](#successful-response-structure)  [Done]
+- Also make sure in the response you return the updated blog document. [Done]
 
 ### DELETE /blogs/:blogId
 - Check if the blogId exists( and is not deleted). If it does, mark it deleted and return an HTTP status 200 without any response body.

@@ -1,7 +1,7 @@
 const blogModel = require("../models/blogModel");
 const authorModel = require("../models/authorModel");
-const moment = require("moment"); 
-const jwt = require("jsonwebtoken")
+const moment = require("moment");
+const jwt = require("jsonwebtoken");
 
 const createBlog = async function (req, res) {
   try {
@@ -41,24 +41,36 @@ const getBlogs = async function (req, res) {
 const updateBlog = async function (req, res) {
   try {
     let blogId = req.params.blogId;
-    let Details = await blogModel.find({ _id: blogId, isDeleted: false });
-    if (!Details.length)
-      return res.status(400).send({ status: false, msg: "Data is incorrect" });
-    let { title, body, tags, subcategory } = req.body;
-    let newBlog = await blogModel
-      .findOneAndUpdate(
-        { Details },
+    let Details = await blogModel.findById(blogId);
+    if (Details.isDeleted == true)
+      return res
+        .status(404)
+        .send({ status: false, msg: "Blog already deleted" });
+
+    let { title, body, tags, subcategory, category, published } = req.body;
+    let update = await blogModel.findByIdAndUpdate(
+      { _id: blogId },
+      {
+        $push: { category: category, subcategory: subcategory, tags: tags },
+        title: title,
+        body: body,
+      },
+      { new: true }
+    );
+
+    if (req.body.published == true && Details.published == false) {
+      let finalUpdate = await blogModel.findByIdAndUpdate(
+        { _id: blogId },
         {
-          $push: { subcategory: subcategory, tags: tags },
-          title: title,
-          body: body,
-          Published: true,
-          publishedAt: Date.now(),
+          published: true,
+          publishedAt: moment().format(),
         },
         { new: true }
-      )
-      .populate("authorId");
-    res.status(200).send({ status: true, data: newBlog });
+      );
+      update = finalUpdate;
+    }
+
+    return res.status(200).send({ status: true, data: update });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ error: err.message });
@@ -68,15 +80,19 @@ const updateBlog = async function (req, res) {
 const deleteBlog = async function (req, res) {
   try {
     let blogId = req.params.blogId;
+    if (!blogId)
+      return res
+        .status(400)
+        .send({ status: false, msg: "BlogId is mandatory" });
 
     let deleteData = await blogModel.findById({ _id: blogId });
-    if (!deleteData) return res.status(404).send({ msg: "incorrect data" });
+    if (!deleteData) return res.status(404).send({ msg: "Invalid blogId" });
 
     if (deleteData.isDeleted == true)
-      return res.status(404).send({ msg: "user already deleted" });
+      return res.status(404).send({ msg: "User already deleted" });
     let updateDelete = await blogModel.findOneAndUpdate(
       { _id: blogId },
-      { isDeleted: true, deletedAt: Date.now() },
+      { isDeleted: true, deletedAt: moment().format() },
       { new: true }
     );
     if (updateDelete)
@@ -93,32 +109,24 @@ const deleteQuery = async function (req, res) {
     let decode = jwt.verify(token, "project-one");
 
     let anyData = req.query;
-    let obj = await blogModel.find(anyData);
+    let obj = await blogModel.find({$and: [anyData, {authorId: decode.author_Id}]});
 
-    console.log(obj);
+    let del = await blogModel.updateMany({obj},{isDeleted : true, deletedAt: moment().format()},{new: true})
 
-    let output = [];
-    for (let i = 0; i < obj.length; i++) {
-      if (obj[i].authorId == decode.author_Id) {
-        output.push(obj[i]);
-      }
-    }
 
-    console.log(output);
-
-    if (!output.length)
+    if (!obj.length)
       return res.status(400).send({ status: false, msg: "BAD REQ" });
+    // let delData= []
 
-    for (let j = 0; j < output.length; j++) {
-      let delData = await blogModel.updateMany(
-        { authorId: output[j].authorId },
-        { isDeleted: true, deletedAt: Date.now() },
-        { new: true }
-      );
+    // for (let j = 0; j < obj.length; j++) {
+    //   delData = await blogModel.findOneAndUpdate(
+    //     { _id: obj[j]._id },
+    //     { isDeleted: true, deletedAt: Date.now() },
+    //     { new: true }
+    //   );
 
-      output = delData;
-    }
-    res.status(200).send({ status: true, data: output });    
+    // }
+    res.status(200).send({ status: true, data: "Documents successfully deleted" });
   } catch (err) {
     console.log(err.message);
     res.status(500).send({ error: err.message });
