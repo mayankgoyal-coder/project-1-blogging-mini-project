@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/akshintalaabhijith/Project1.git"
+    "url": "https://github.com/mayankgoyal-coder/project-1-blogging-mini-project.git"
   },
-  "author": "room50",
+  "author": "mayank",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/akshintalaabhijith/Project1/issues"
+    "url": "https://github.com/mayankgoyal-coder/project-1-blogging-mini-project.git"
   },
-  "homepage": "https://github.com/akshintalaabhijith/Project1#readme",
+  "homepage": "https://github.com/mayankgoyal-coder/project-1-blogging-mini-project.git",
   "dependencies": {
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
